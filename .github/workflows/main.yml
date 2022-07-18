@@ -2,8 +2,10 @@ name: Deploy to GitHub Pages
 
 # Run workflow on every push to the master branch
 on:
+  workflow_dispatch:
   push:
-    branches: [ master ]
+    branches:
+      - 'main'
 
 jobs:
   deploy-to-github-pages:
@@ -13,19 +15,21 @@ jobs:
     # uses GitHub's checkout action to checkout code form the master branch
     - uses: actions/checkout@v2
     
-    # sets up .NET Core SDK 6.x
-    - name: Setup .NET Core SDK
+    # sets up .NET SDK 6.x
+    - name: Setup .NET SDK
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.x
 
     # publishes Blazor project to the release-folder
-    - name: Publish .NET Core Project
-      run: dotnet publish GitHubPagesForBlazor/GitHubPagesForBlazor.csproj -c Release -o release --nologo
+    - name: Publish .NET Project
+      run: dotnet publish src/GitHubPagesForBlazor/GitHubPagesForBlazor.csproj -c Release -o release --nologo
     
-    # changes the base-tag in index.html from '/' to 'GitHubPagesForBlazor' to match GitHub Pages repository subdirectory
-    - name: Change base-tag in index.html from / to GitHubPagesForBlazor
-      run: sed -i 's/<base href="\/" \/>/<base href="\/GitHubPagesForBlazor\/" \/>/g' release/wwwroot/index.html
+    # msynk: why would you do this??
+    # ------------------------------
+    # changes the base url in index.html from '/' to 'GitHubPagesForBlazor' to match GitHub Pages repository subdirectory
+    # - name: Change base-tag in index.html from / to GitHubPagesForBlazor
+    #   run: sed -i 's/<base href="\/" \/>/<base href="\/GitHubPagesForBlazor\/" \/>/g' release/wwwroot/index.html
     
     # copy index.html to 404.html to serve the same file when a file is not found
     - name: copy index.html to 404.html
